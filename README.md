@@ -28,7 +28,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-The application will be available at `http://localhost:5000`
+The application will be available at `http://localhost:5001`
 
 ### Docker Deployment
 
@@ -39,12 +39,12 @@ docker build -t ocr-app .
 
 2. Run the container:
 ```bash
-docker run -p 5000:5000 ocr-app
+docker run -p 5001:5001 ocr-app
 ```
 
 ## Usage
 
-1. Open your browser and navigate to `http://localhost:5000`
+1. Open your browser and navigate to `http://localhost:5001`
 2. Click "Choose File" and select an image or PDF
 3. Click "Extract Text" to process the file
 4. View the extracted text in the results area
@@ -64,6 +64,6 @@ docker run -p 5000:5000 ocr-app
 
 ## Notes
 
-- The application uses port 5000 as specified in the FastHTML documentation
+- The application uses port 5001 as specified in the FastHTML documentation
 - The Gemini API key is configured in the application
 - The Dockerfile uses Debian base image with required system dependencies

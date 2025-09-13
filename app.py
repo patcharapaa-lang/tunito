@@ -1,4 +1,4 @@
-from fasthtml import *
+from fasthtml.common import *
 import google.generativeai as genai
 import os
 import tempfile
@@ -14,9 +14,9 @@ genai.configure(api_key="AIzaSyD4P8-6gLsW4qDdl3JV2gIIedH9GOMfV4k")
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Create the FastHTML app
-app = FastHTML()
+app, rt = fast_app()
 
-@app.get("/")
+@rt("/")
 def home():
     return html(
         head(
@@ -91,11 +91,16 @@ def home():
         )
     )
 
-@app.post("/ocr")
-def process_ocr(file: UploadFile):
+@rt("/ocr", methods=["POST"])
+def process_ocr(req):
     try:
+        # Get the uploaded file
+        file = req.files.get('file')
+        if not file:
+            return {"success": False, "error": "No file uploaded"}
+        
         # Read the uploaded file
-        file_content = file.file.read()
+        file_content = file.read()
         
         # Process based on file type
         if file.filename.lower().endswith('.pdf'):
@@ -162,5 +167,5 @@ def process_ocr(file: UploadFile):
         return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":
-    # Run on port 5000 as specified in FastHTML documentation
-    app.run(port=5000, host="0.0.0.0")
+    # Run on port 5001 as specified in FastHTML documentation
+    serve(port=5001, host="0.0.0.0")
