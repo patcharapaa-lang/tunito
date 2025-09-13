@@ -8,7 +8,7 @@ import io
 import base64
 
 # Configure Gemini API
-genai.configure(api_key="AIzaSyD4P8-6gLsW4qDdl3JV2gIIedH9GOMfV4k")
+genai.configure(api_key="AIzaSyD4P8-6gLsW4qDdl3JV2gIIedH9GOMfV4g")
 
 # Initialize the model
 model = genai.GenerativeModel('gemini-1.5-flash')
