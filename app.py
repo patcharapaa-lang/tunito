@@ -1,4 +1,4 @@
-from fasthtml.common import *
+from flask import Flask, request, jsonify, render_template_string
 import google.generativeai as genai
 import os
 import tempfile
@@ -13,91 +13,93 @@ genai.configure(api_key="AIzaSyD4P8-6gLsW4qDdl3JV2gIIedH9GOMfV4k")
 # Initialize the model
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-# Create the FastHTML app
-app, rt = fast_app()
+# Create the Flask app
+app = Flask(__name__)
 
-@rt("/")
+@app.route("/")
 def home():
-    return html(
-        head(
-            title("OCR Web Application"),
-            meta(charset="utf-8"),
-            meta(name="viewport", content="width=device-width, initial-scale=1"),
-            link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css")
-        ),
-        body(
-            div(
-                div(
-                    h1("OCR Web Application", class_="text-3xl font-bold text-center mb-8 text-gray-800"),
-                    div(
-                        form(
-                            div(
-                                label("Upload Image or PDF:", class_="block text-sm font-medium text-gray-700 mb-2"),
-                                input(type="file", id="fileInput", accept=".jpg,.jpeg,.png,.pdf", 
-                                     class_="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"),
-                                class_="mb-4"
-                            ),
-                            div(
-                                button("Extract Text", type="submit", 
-                                      class_="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"),
-                                class_="mb-4"
-                            )
-                        ),
-                        class_="bg-white p-6 rounded-lg shadow-md"
-                    ),
-                    div(
-                        h2("Extracted Text:", class_="text-xl font-semibold mb-4 text-gray-800"),
-                        div(id="result", class_="bg-gray-100 p-4 rounded-lg min-h-32 border-2 border-dashed border-gray-300"),
-                        class_="mt-6"
-                    ),
-                    class_="max-w-2xl mx-auto p-6"
-                ),
-                class_="min-h-screen bg-gray-100 py-8"
-            ),
-            script("""
-                document.querySelector('form').addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const fileInput = document.getElementById('fileInput');
-                    const resultDiv = document.getElementById('result');
-                    
-                    if (!fileInput.files[0]) {
-                        alert('Please select a file');
-                        return;
-                    }
-                    
-                    resultDiv.innerHTML = '<div class="text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div><p class="mt-2">Processing...</p></div>';
-                    
-                    const formData = new FormData();
-                    formData.append('file', fileInput.files[0]);
-                    
-                    try {
-                        const response = await fetch('/ocr', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 rounded-lg p-4"><h3 class="font-semibold text-green-800 mb-2">Extracted Text:</h3><pre class="whitespace-pre-wrap text-gray-700">${data.text}</pre></div>`;
-                        } else {
-                            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4"><p class="text-red-800">Error: ${data.error}</p></div>`;
-                        }
-                    } catch (error) {
-                        resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4"><p class="text-red-800">Error: ${error.message}</p></div>`;
-                    }
-                });
-            """)
-        )
-    )
+    return render_template_string("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Web Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-100 py-8">
+    <div class="max-w-2xl mx-auto p-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">OCR Web Application</h1>
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image or PDF:</label>
+                    <input type="file" id="fileInput" name="file" accept=".jpg,.jpeg,.png,.pdf" 
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div class="mb-4">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Extract Text
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Extracted Text:</h2>
+                <div id="result" class="bg-gray-100 p-4 rounded-lg min-h-32 border-2 border-dashed border-gray-300"></div>
+            </div>
+        </div>
+    </div>
 
-@rt("/ocr", methods=["POST"])
-def process_ocr(req):
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div><p class="mt-2">Processing...</p></div>';
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('/ocr', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 rounded-lg p-4"><h3 class="font-semibold text-green-800 mb-2">Extracted Text:</h3><pre class="whitespace-pre-wrap text-gray-700">${data.text}</pre></div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4"><p class="text-red-800">Error: ${data.error}</p></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4"><p class="text-red-800">Error: ${error.message}</p></div>`;
+            }
+        });
+    </script>
+</body>
+</html>
+    """)
+
+@app.route("/ocr", methods=["POST"])
+def process_ocr():
     try:
         # Get the uploaded file
-        file = req.files.get('file')
-        if not file:
-            return {"success": False, "error": "No file uploaded"}
+        if 'file' not in request.files:
+            return jsonify({"success": False, "error": "No file uploaded"})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"success": False, "error": "No file selected"})
         
         # Read the uploaded file
         file_content = file.read()
@@ -161,11 +163,11 @@ def process_ocr(req):
             
             extracted_text = response.text if response.text else "No text found in the image."
         
-        return {"success": True, "text": extracted_text}
+        return jsonify({"success": True, "text": extracted_text})
         
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return jsonify({"success": False, "error": str(e)})
 
 if __name__ == "__main__":
-    # Run on port 5001 as specified in FastHTML documentation
-    serve(port=5001, host="0.0.0.0")
+    # Run on port 5001
+    app.run(port=5001, host="0.0.0.0", debug=True)
