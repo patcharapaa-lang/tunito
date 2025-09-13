@@ -7,7 +7,7 @@ from PIL import Image
 import google.generativeai as genai
 
 # LINE Bot configuration
-CHANNEL_ACCESS_TOKEN = "Am/TUFGz2OjG0YjSQmmhQ99jORlQkR1s+w3tyFgDSGYcCCMB/uNpGbhENGDP852REpwmkSCrIZacH8x36zcrAplT2cmBaQrL2wpNOh7iWuGO8RU14JGyhvNOo0AB2WZHT3Z8lwWsMQtxGTi2mqFUQdB04t89/1O/w1cDnyilFU="
+CHANNEL_ACCESS_TOKEN = "Am/TUFGZz2OjG0YjSQmmhQ99jORlQkR1s+w3tyFgDSGYcCCMB/uNpGbhENGDP852REpwmkSCrIZacH8x36zcrAplT2cmBaQrL2wpNOh7iWuGO8RU14JGyhvNOo0AB2WZHT3Z8lwWsMQtxGTi2mqFUQdB04t89/1O/w1cDnyilFU="
 LINE_API_URL = "https://api.line.me/v2/bot/message/reply"
 LINE_CONTENT_API_URL = "https://api-data.line.me/v2/bot/message"
 
