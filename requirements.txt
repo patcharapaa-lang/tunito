@@ -1,0 +1,5 @@
+fasthtml==0.1.0
+google-generativeai==0.8.3
+Pillow==10.0.1
+PyMuPDF==1.23.8
+python-multipart==0.0.6
