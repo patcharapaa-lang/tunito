@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     libfreetype6 \
     libjpeg62-turbo \
     libpng16-16 \
-    libtiff5 \
+    libtiff6 \
     libopenjp2-7 \
     libwebp7 \
     libharfbuzz0b \
